@@ -36,8 +36,8 @@ jobs:
           labels: |
             org.opencontainers.image.url=${{ github.repository }}
             org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.title=GlobalTunaAtlasExplorer
-            org.opencontainers.image.description=Interactive Shiny application for Tuna Atlas data visualization
+            org.opencontainers.image.title=Testshinyappdeployement
+            org.opencontainers.image.description=Shinyapptest for deployment
             org.opencontainers.image.vendor=IRD
             org.opencontainers.image.author=Bastien Grasset <bastien.grasset@ird.fr>
 
