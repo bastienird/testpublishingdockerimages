@@ -30,6 +30,9 @@ RUN apt-get update && apt-get -y install
 # Install renv package
 RUN R -e "install.packages('renv', repos='https://cran.r-project.org/')"
 
+# ARG définit un argument de construction appelé RENV_PATHS_ROOT. Sa valeur est passée depuis le fichier YAML.
+ARG RENV_PATHS_ROOT
+
 # Set environment variables for renv cache
 RUN mkdir -p ${RENV_PATHS_ROOT}
 
