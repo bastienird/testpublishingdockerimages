@@ -33,6 +33,8 @@ RUN R -e "install.packages('renv', repos='https://cran.r-project.org/')"
 # ARG définit un argument de construction appelé RENV_PATHS_ROOT. Sa valeur est passée depuis le fichier YAML.
 ARG RENV_PATHS_ROOT
 
+
+
 # Set environment variables for renv cache
 RUN mkdir -p ${RENV_PATHS_ROOT}
 
@@ -41,9 +43,9 @@ WORKDIR /root/testpublishingdockerimages
 
 # Copy renv configuration and lockfile
 COPY renv.lock ./
-  COPY .Rprofile ./
-  COPY renv/activate.R renv/
-  COPY renv/settings.json renv/
+COPY .Rprofile ./
+COPY renv/activate.R renv/
+COPY renv/settings.json renv/
   
 # Set renv cache location
 ENV RENV_PATHS_CACHE ${RENV_PATHS_ROOT}
