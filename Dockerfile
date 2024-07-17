@@ -1,76 +1,56 @@
+# Utiliser l'image de base R
 FROM rocker/r-ver:4.2.3
 
-# Maintainer information
-MAINTAINER Julien Barde "julien.barde@ird.fr"
+# Informations sur le mainteneur
+LABEL maintainer="Julien Barde <julien.barde@ird.fr>"
 
-# Install system libraries of general use
-RUN apt-get update && apt-get install -y \
-sudo \
-pandoc \
-pandoc-citeproc \
-libssl-dev \
-libcurl4-openssl-dev \
-libxml2-dev \
-libudunits2-dev \
-libproj-dev \
-libgeos-dev \
-libgdal-dev \
-libv8-dev \
-libsodium-dev \
-libsecret-1-dev \
-git \
-libnetcdf-dev \
-curl \
-libjq-dev \
-cmake
+# Installer les bibliothèques système de base
+RUN apt-get update && apt-get install -y sudo pandoc pandoc-citeproc libssl-dev libcurl4-openssl-dev libxml2-dev libudunits2-dev libproj-dev libgeos-dev libgdal-dev libv8-dev libsodium-dev libsecret-1-dev git libnetcdf-dev curl libjq-dev cmake
 
-# Install cmake
-RUN apt-get update && apt-get -y install 
-
-# Install renv package
-RUN R -e "install.packages('renv', repos='https://cran.r-project.org/')" # last version to keep the app updated
-
-# ARG defines a constructor argument called RENV_PATHS_ROOT. Its value is passed from the YAML file.
+# Définir l'argument de construction pour le chemin du cache renv
 ARG RENV_PATHS_ROOT
+ENV RENV_PATHS_CACHE=${RENV_PATHS_ROOT}
 
-# Set environment variables for renv cache
+# Créer le répertoire du cache renv
 RUN mkdir -p ${RENV_PATHS_ROOT}
 
-# Set the working directory
+# Définir le répertoire de travail
 WORKDIR /root/testpublishingdockerimages
 
-RUN mkdir -p renv
+# Copier les fichiers renv et lister les fichiers pour le diagnostic
+COPY renv.lock ./
+COPY .Rprofile ./
+COPY renv/activate.R renv/
+COPY renv/settings.json renv/
+RUN ls -la
+RUN ls -la renv
 
+# Restaurer les packages renv
+RUN R -e "renv::restore()"
 
-# Copy renv configuration and lockfile
-COPY renv.lock ./ # to record packages to install during renv::restore
-# COPY .Rprofile ./ # not usefull as we run renv::activate() before starting the app but can be
-COPY renv/activate.R renv/ # to activate renv and special settings (line 46)
-COPY renv/settings.json renv/ # to display settings as use cache or restoring every and only packages in the lock
-  
-# Set renv cache location
-ENV RENV_PATHS_CACHE ${RENV_PATHS_ROOT}
-
-# Restore renv packages
-RUN R -e "renv::activate()" # usefull to setup the environement (with the path cache)
-RUN R -e "renv::restore()" # restoring the packages
-
+# Créer le répertoire data et lister les fichiers pour le diagnostic
 RUN mkdir -p data
+RUN ls -la ./data
 
-COPY update_data.R ./update_data.R # copy the script downloading the data from the csv
-COPY data/DOI2.csv ./data/DOI2.csv # copy the csv containing the data to donwload
+# Copier les données et le script de traitement
+COPY data/DOI2.csv ./data/DOI2.csv
+COPY update_data.R ./update_data.R
+
+# Lister les fichiers après la copie pour le diagnostic
+RUN ls -la ./data
+RUN ls -la
 
 # Exécuter le script de traitement des données
-RUN Rscript update_data.R.R #downloading the data (cached if data/DOI.csv did not change)
+RUN Rscript update_data.R
 
-# Copy the rest of the application code
+# Copier le reste du code de l'application
 COPY . .
 
-# Expose port 3838 for the Shiny app
+# Exposer le port 3838 pour l'application Shiny
 EXPOSE 3838
 
-# Create directories for configuration
+# Créer des répertoires pour la configuration
 RUN mkdir -p /etc/testpublishingdockerimages/
-  
-# Define the entry point to run the Shiny app
+
+# Définir le point d'entrée pour exécuter l'application Shiny
 CMD ["R", "-e", "shiny::runApp('/root/testpublishingdockerimages', port=3838, host='0.0.0.0')"]
