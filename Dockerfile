@@ -27,6 +27,8 @@ cmake
 # Install cmake
 RUN apt-get update && apt-get -y install 
 
+RUN apt-get update && apt-get -y install 
+
 # Install renv package
 RUN R -e "install.packages('renv', repos='https://cran.r-project.org/')" # last version to keep the app updated
 
