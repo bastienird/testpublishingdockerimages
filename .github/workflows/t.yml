@@ -31,7 +31,7 @@ jobs:
       # Calculate the hash of DOI.csv
       - name: Calculate DOI.csv hash
         id: doi_csv
-        run: echo "doi_csv_hash=$(sha256sum data/DOI.csv | cut -d' ' -f1)" >> $GITHUB_ENV
+        run: echo "doi_csv_hash=$(sha256sum data/DOI2.csv | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Docker meta
         id: meta
