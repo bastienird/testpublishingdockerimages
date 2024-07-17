@@ -52,6 +52,8 @@ ENV RENV_PATHS_CACHE ${RENV_PATHS_ROOT}
 RUN R -e "renv::activate()" # usefull to setup the environement (with the path cache)
 RUN R -e "renv::restore()" # restoring the packages
 
+RUN mkdir -p data
+
 COPY update_data.R ./update_data.R # copy the script downloading the data from the csv
 COPY data/DOI2.csv ./data/DOI2.csv # copy the csv containing the data to donwload
 
