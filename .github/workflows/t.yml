@@ -23,9 +23,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      - name: Verify files existence
-        run: ls -la data
-
       # Calculate the hash of renv.lock
       - name: Calculate renv.lock hash
         id: renv_lock
@@ -66,28 +63,28 @@ jobs:
         with:
           driver-opts: image=moby/buildkit:master,network=host
 
-      # - name: Cache Docker layers for R packages
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: /tmp/.buildx-cache/packages
-      #     key: ${{ runner.os }}-buildx-packages-${{ env.renv_lock_hash }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-buildx-packages-
+      - name: Cache Docker layers for R packages
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache/packages
+          key: ${{ runner.os }}-buildx-packages-${{ env.renv_lock_hash }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-packages-
 
-      # - name: Cache Docker layers for data download
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: /tmp/.buildx-cache/data
-      #     key: ${{ runner.os }}-buildx-data-${{ env.doi_csv_hash }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-buildx-data-
-
+      - name: Cache Docker layers for data download
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache/data
+          key: ${{ runner.os }}-buildx-data-${{ env.doi_csv_hash }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-data-
+        
       - name: Build Docker image
         run: |
           docker buildx build \
             --no-cache \
+            --progress=plain \
             --tag ghcr.io/firms-gta/testpublishingdockerimages:latest \
-            --build-arg RENV_PATHS_ROOT=${{ env.RENV_PATHS_ROOT }} \
             --output type=docker,dest=/tmp/docker-image.tar \
             .
 
