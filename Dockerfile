@@ -41,6 +41,9 @@ RUN mkdir -p ${RENV_PATHS_ROOT}
 # Set the working directory
 WORKDIR /root/testpublishingdockerimages
 
+RUN mkdir -p renv
+
+
 # Copy renv configuration and lockfile
 COPY renv.lock ./ # to record packages to install during renv::restore
 # COPY .Rprofile ./ # not usefull as we run renv::activate() before starting the app but can be
