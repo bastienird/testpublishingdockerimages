@@ -28,6 +28,14 @@ jobs:
       - name: Calculate renv.lock hash
         id: renv_lock
         run: echo "renv_lock_hash=$(sha256sum renv.lock | cut -d' ' -f1)" >> $GITHUB_ENV
+      
+      - name: Cache R packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ env.renv_lock_hash }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
 
       # Calculate the hash of DOI.csv
       - name: Calculate DOI.csv hash
