@@ -6,8 +6,9 @@ flog.info("All libraries loaded successfully.")
 # Read the DOI CSV file
 DOI <- read_csv('data/DOI2.csv')
 
-# Function to load data based on filenames in DOI and assign to global variables
 load_data <- function() {
+  loaded_data <- list()
+  
   for (filename in DOI$Filename) {
     if(!exists(tools::file_path_sans_ext(filename))){
       base_filename <- tools::file_path_sans_ext(filename) # Remove any existing extension
@@ -16,17 +17,22 @@ load_data <- function() {
       
       if (file.exists(csv_file_path)) {
         assign(base_filename, read_csv(csv_file_path), envir = .GlobalEnv)
+        loaded_data[[base_filename]] <- read_csv(csv_file_path)
       } else if (file.exists(rds_file_path)) {
         assign(base_filename, readRDS(rds_file_path), envir = .GlobalEnv)
+        loaded_data[[base_filename]] <- readRDS(rds_file_path)
       } else {
         warning(paste('File not found:', csv_file_path, 'or', rds_file_path))
       }
     }
   }
+  
+  return(loaded_data)
 }
 
 # Load all data files
-load_data()
+loaded_data <- load_data()
+
 
 # Log the loading of libraries
 flog.info("All datasets loaded successfully.")

@@ -10,12 +10,14 @@ ui <- fluidPage(
                   "Number of bins:",
                   min = 1,
                   max = 50,
-                  value = 30)
+                  value = 30),
+      selectInput("dataset", "Choose a dataset:", choices = names(loaded_data))
     ),
     
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("distPlot")
+      plotOutput("distPlot"),
+      tableOutput("dataTable")
     )
   )
 )
