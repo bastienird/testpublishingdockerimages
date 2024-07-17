@@ -18,7 +18,7 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    timeout-minutes: 130
+    timeout-minutes: 120
 
     steps:
       - name: Checkout code
