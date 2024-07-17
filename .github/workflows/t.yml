@@ -94,7 +94,7 @@ jobs:
             .
 
       - name: Verify cache directory
-        run: ls -la ${{ env.RENV_PATHS_ROOT }}
+        run: sudo ls -la ${{ env.RENV_PATHS_ROOT }}
             
       - name: Load Docker image
         if: github.ref_type == 'tag'
