@@ -5,7 +5,25 @@ FROM rocker/r-ver:4.2.3
 LABEL maintainer="Julien Barde <julien.barde@ird.fr>"
 
 # Installer les bibliothèques système de base
-RUN apt-get update && apt-get install -y sudo pandoc pandoc-citeproc libssl-dev libcurl4-openssl-dev libxml2-dev libudunits2-dev libproj-dev libgeos-dev libgdal-dev libv8-dev libsodium-dev libsecret-1-dev git libnetcdf-dev curl libjq-dev cmake
+RUN apt-get update && apt-get install -y \
+sudo \
+pandoc \
+pandoc-citeproc \
+libssl-dev \
+libcurl4-openssl-dev \
+libxml2-dev \
+libudunits2-dev \
+libproj-dev \
+libgeos-dev \
+libgdal-dev \
+libv8-dev \
+libsodium-dev \
+libsecret-1-dev \
+git \
+libnetcdf-dev \
+curl \
+libjq-dev \
+cmake
 
 # Définir l'argument de construction pour le chemin du cache renv
 ARG RENV_PATHS_ROOT
