@@ -50,6 +50,7 @@ RUN ls -la
 RUN ls -la renv
 
 # Restaurer les packages renv
+RUN R -e "renv::activate()"
 RUN R -e "renv::restore()"
 
 # Créer le répertoire data et lister les fichiers pour le diagnostic
