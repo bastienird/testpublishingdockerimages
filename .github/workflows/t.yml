@@ -63,21 +63,21 @@ jobs:
         with:
           driver-opts: image=moby/buildkit:master,network=host
 
-      - name: Cache Docker layers for R packages
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache/packages
-          key: ${{ runner.os }}-buildx-packages-${{ env.renv_lock_hash }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-packages-
+      # - name: Cache Docker layers for R packages
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: /tmp/.buildx-cache/packages
+      #     key: ${{ runner.os }}-buildx-packages-${{ env.renv_lock_hash }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-packages-
 
-      - name: Cache Docker layers for data download
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache/data
-          key: ${{ runner.os }}-buildx-data-${{ env.doi_csv_hash }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-data-
+      # - name: Cache Docker layers for data download
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: /tmp/.buildx-cache/data
+      #     key: ${{ runner.os }}-buildx-data-${{ env.doi_csv_hash }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-data-
         
       - name: Build Docker image
         run: |
