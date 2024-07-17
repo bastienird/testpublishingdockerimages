@@ -53,7 +53,7 @@ RUN R -e "renv::activate()" # usefull to setup the environement (with the path c
 RUN R -e "renv::restore()" # restoring the packages
 
 COPY update_data.R ./update_data.R # copy the script downloading the data from the csv
-COPY data/DOI.csv ./data/DOI.csv # copy the csv containing the data to donwload
+COPY data/DOI2.csv ./data/DOI2.csv # copy the csv containing the data to donwload
 
 # Exécuter le script de traitement des données
 RUN Rscript update_data.R.R #downloading the data (cached if data/DOI.csv did not change)
