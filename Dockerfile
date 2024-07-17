@@ -6,28 +6,34 @@ LABEL maintainer="Julien Barde <julien.barde@ird.fr>"
 
 # Installer les bibliothèques système de base
 RUN apt-get update && apt-get install -y \
-sudo \
-pandoc \
-pandoc-citeproc \
-libssl-dev \
-libcurl4-openssl-dev \
-libxml2-dev \
-libudunits2-dev \
-libproj-dev \
-libgeos-dev \
-libgdal-dev \
-libv8-dev \
-libsodium-dev \
-libsecret-1-dev \
-git \
-libnetcdf-dev \
-curl \
-libjq-dev \
-cmake
+    sudo \
+    pandoc \
+    pandoc-citeproc \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libudunits2-dev \
+    libproj-dev \
+    libgeos-dev \
+    libgdal-dev \
+    libv8-dev \
+    libsodium-dev \
+    libsecret-1-dev \
+    git \
+    libnetcdf-dev \
+    curl \
+    libjq-dev \
+    cmake
 
 # Définir l'argument de construction pour le chemin du cache renv
-ARG RENV_PATHS_ROOT
+ARG RENV_PATHS_ROOT=/root/.cache/R/renv
+
+# Définir les variables d'environnement pour le cache renv
 ENV RENV_PATHS_CACHE=${RENV_PATHS_ROOT}
+
+# Diagnostiquer la valeur de la variable
+RUN echo "RENV_PATHS_ROOT=${RENV_PATHS_ROOT}"
+RUN echo "RENV_PATHS_CACHE=${RENV_PATHS_CACHE}"
 
 # Créer le répertoire du cache renv
 RUN mkdir -p ${RENV_PATHS_ROOT}
@@ -54,7 +60,7 @@ RUN ls -la ./data
 COPY data/DOI2.csv ./data/DOI2.csv
 COPY update_data.R ./update_data.R
 
-# Lister les fichiers après la copie pour le diagnostic
+# Ajouter une étape pour lister les fichiers après copie
 RUN ls -la ./data
 RUN ls -la
 
