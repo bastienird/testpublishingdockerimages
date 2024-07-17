@@ -75,7 +75,7 @@ RUN ls -la ./data
 RUN ls -la
 
 # Exécuter le script de traitement des données
-RUN Rscript update_data.R
+# RUN Rscript update_data.R
 
 # Copier le reste du code de l'application
 COPY . .

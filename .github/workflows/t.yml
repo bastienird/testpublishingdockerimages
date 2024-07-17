@@ -24,23 +24,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      # Calculate the hash of renv.lock
-      - name: Calculate renv.lock hash
-        id: renv_lock
-        run: echo "renv_lock_hash=$(sha256sum renv.lock | cut -d' ' -f1)" >> $GITHUB_ENV
-      
-      # - name: Cache R packages
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ${{ env.RENV_PATHS_ROOT }}
-      #     key: ${{ runner.os }}-renv-${{ env.renv_lock_hash }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-renv-
-
-      # Calculate the hash of DOI.csv
-      - name: Calculate DOI.csv hash
-        id: doi_csv
-        run: echo "doi_csv_hash=$(sha256sum data/DOI2.csv | cut -d' ' -f1)" >> $GITHUB_ENV
+      # # Calculate the hash of renv.lock
+      # - name: Calculate renv.lock hash
+      #   id: renv_lock
+      #   run: echo "renv_lock_hash=$(sha256sum renv.lock | cut -d' ' -f1)" >> $GITHUB_ENV
+      # 
+      # # Calculate the hash of DOI.csv
+      # - name: Calculate DOI.csv hash
+      #   id: doi_csv
+      #   run: echo "doi_csv_hash=$(sha256sum data/DOI2.csv | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Docker meta
         id: meta
@@ -72,29 +64,30 @@ jobs:
         with:
           driver-opts: image=moby/buildkit:master,network=host
 
-      - name: Cache Docker layers for R packages
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache/packages
-          key: ${{ runner.os }}-buildx-packages-${{ env.renv_lock_hash }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-packages-
+      # - name: Cache Docker layers for R packages
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: /tmp/.buildx-cache/packages
+      #     key: ${{ runner.os }}-buildx-packages-${{ env.renv_lock_hash }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-packages-
 
-      - name: Cache Docker layers for data download
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache/data
-          key: ${{ runner.os }}-buildx-data-${{ env.doi_csv_hash }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-data-
+      # - name: Cache Docker layers for data download
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: /tmp/.buildx-cache/data
+      #     key: ${{ runner.os }}-buildx-data-${{ env.doi_csv_hash }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-data-
         
       - name: Build Docker image
         run: |
           docker buildx build \
-            --no-cache \
             --progress=plain \
+            --cache-from type=registry,ref=$CACHE_IMAGE:latest \
+            --cache-to type=registry,ref=$CACHE_IMAGE:latest,mode=max \
+            --build-arg RENV_PATHS_ROOT=${{ env.RENV_PATHS_ROOT }} \
             --tag ghcr.io/firms-gta/testpublishingdockerimages:latest \
-            --output type=docker,dest=/tmp/docker-image.tar \
             .
 
       - name: Load Docker image
