@@ -1,57 +1,36 @@
+# Install necessary packages
 library(XML)
 library(zen4R)
 library(readr)
-
 DOI <- read_csv("data/DOI2.csv")
 
-# Fonction pour télécharger un fichier avec une logique de reprise
-download_with_retry <- function(url, destfile, retries = 3, sleep_time = 5) {
-  success <- FALSE
-  attempt <- 0
-  while (!success && attempt < retries) {
-    attempt <- attempt + 1
-    tryCatch({
-      download.file(url, destfile, quiet = TRUE, timeout = 600) # Augmentez le délai d'attente à 600 secondes
-      if (file.info(destfile)$size > 0) {
-        success <- TRUE
-      } else {
-        stop("File is empty after download.")
-      }
-    }, error = function(e) {
-      cat(sprintf("Attempt %d failed: %s\n", attempt, e$message))
-      Sys.sleep(sleep_time)
-    })
-  }
-  if (!success) stop("All download attempts failed.")
-}
-
 extract_zenodo_metadata <- function(doi, filename, data_dir = "data") {
-  # Créer le répertoire de données s'il n'existe pas
+  
+  dir <- getwd()
+  # Create the data directory if it doesn't exist
   if (!dir.exists(data_dir)) {
     dir.create(data_dir)
   }
   
-  # Définir le répertoire de travail sur le répertoire de données
+  # Set the working directory to the data directory
   setwd(data_dir)
   
-  # Exporter les métadonnées DublinCore
+  # Export DublinCore metadata
   zen4R::export_zenodo(doi = doi, filename = "zenodoDublincore", format = "DublinCore")
   
-  # Télécharger le fichier requis avec une logique de reprise
-  record <- zen4R::get_zenodo_record(doi = doi)
-  file <- record$files[[which(sapply(record$files, function(x) x$filename) == filename)]]
-  download_with_retry(file$download, filename)
+  # Download the required file
+  zen4R::download_zenodo(doi = doi, files = filename)
   
-  # Analyser le fichier XML Dublin Core
+  # Parse the Dublin Core XML file
   xml_file <- xmlTreeParse("zenodoDublincore_DublinCore.xml", useInternalNodes = TRUE)
   xml_root <- xmlRoot(xml_file)
   
-  # Définir les espaces de noms si nécessaire
+  # Define namespaces if necessary
   namespace_definitions <- c(
     dc = "http://purl.org/dc/elements/1.1/"
   )
   
-  # Extraire les éléments de métadonnées
+  # Extract metadata elements
   title <- xpathSApply(xml_root, "//dc:title", xmlValue, namespaces = namespace_definitions)
   creator <- xpathSApply(xml_root, "//dc:creator", xmlValue, namespaces = namespace_definitions)
   description <- xpathSApply(xml_root, "//dc:description", xmlValue, namespaces = namespace_definitions)[1]
@@ -62,7 +41,7 @@ extract_zenodo_metadata <- function(doi, filename, data_dir = "data") {
   if (length(coverage) == 0) { coverage <- "Undefined" }
   rights <- xpathSApply(xml_root, "//dc:rights", xmlValue, namespaces = namespace_definitions)
   
-  # Créer un dataframe avec les métadonnées extraites
+  # Create a dataframe with the extracted metadata
   metadata_df <- data.frame(
     Title = title,
     Creator = creator,
@@ -75,10 +54,13 @@ extract_zenodo_metadata <- function(doi, filename, data_dir = "data") {
     stringsAsFactors = FALSE
   )
   
-  # Réinitialiser le répertoire de travail
-  setwd("..")
+  # Reset the working directory to the original
+  setwd(dir)
 }
 
 lapply(1:nrow(DOI), function(i) {
   extract_zenodo_metadata(doi = DOI$DOI[i], filename = DOI$Filename[i])
 })
+
+
+
