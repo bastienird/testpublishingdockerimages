@@ -23,10 +23,15 @@ RUN apt-get update && apt-get install -y \
     libnetcdf-dev \
     curl \
     libjq-dev \
-    cmake \
+    cmake && \
+    apt-get clean
+
+# Installer les bibliothèques supplémentaires pour redland
+RUN apt-get update && apt-get install -y \
     librdf0 \
     librdf0-dev \
-    redland-utils
+    redland-utils && \
+    apt-get clean
 
 
 # Définir l'argument de construction pour le chemin du cache renv
