@@ -1,7 +1,6 @@
 # Install necessary packages
 library(XML)
-install_github("eblondel/zen4R")
-require(zen4R)
+library(zen4R)
 library(readr)
 DOI <- read_csv("data/DOI2.csv")
 

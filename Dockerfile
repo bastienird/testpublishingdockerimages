@@ -23,7 +23,11 @@ RUN apt-get update && apt-get install -y \
     libnetcdf-dev \
     curl \
     libjq-dev \
-    cmake
+    cmake \
+    librdf0 \
+    librdf0-dev \
+    redland-utils
+
 
 # Définir l'argument de construction pour le chemin du cache renv
 ARG RENV_PATHS_ROOT=/root/.cache/R/renv
