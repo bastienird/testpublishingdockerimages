@@ -22,6 +22,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Verify files existence
+        run: ls -la data
 
       # Calculate the hash of renv.lock
       - name: Calculate renv.lock hash
