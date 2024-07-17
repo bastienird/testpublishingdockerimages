@@ -44,6 +44,9 @@ ENV RENV_PATHS_CACHE=${RENV_PATHS_ROOT}
 RUN echo "RENV_PATHS_ROOT=${RENV_PATHS_ROOT}"
 RUN echo "RENV_PATHS_CACHE=${RENV_PATHS_CACHE}"
 
+ARG RENV_LOCK_HASH
+RUN echo "RENV_LOCK_HASH=${RENV_LOCK_HASH}"
+
 # Créer le répertoire du cache renv
 RUN mkdir -p ${RENV_PATHS_ROOT}
 
@@ -65,6 +68,8 @@ RUN R -e "renv::restore()"
 # Créer le répertoire data et lister les fichiers pour le diagnostic
 RUN mkdir -p data
 RUN ls -la ./data
+
+RUN echo "DOI_CSV_HASH=${DOI_CSV_HASH}"
 
 # Copier les données et le script de traitement
 COPY data/DOI2.csv ./data/DOI2.csv
