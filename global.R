@@ -5,12 +5,15 @@ flog.info("All libraries loaded successfully.")
 
 # Read the DOI CSV file
 DOI <- read_csv('data/DOI2.csv')
-
+# DOI$Filename <- "global_catch_tunaatlasird_level2.csv"
 load_data <- function() {
   loaded_data <- list()
   
   for (filename in DOI$Filename) {
     if(!exists(tools::file_path_sans_ext(filename))){
+      
+      flog.info("Loading dataset: %s", filename)
+      
       base_filename <- tools::file_path_sans_ext(filename) # Remove any existing extension
       csv_file_path <- file.path('data', paste0(base_filename, '.csv'))
       rds_file_path <- file.path('data', paste0(base_filename, '.rds'))
@@ -24,16 +27,19 @@ load_data <- function() {
       } else {
         warning(paste('File not found:', csv_file_path, 'or', rds_file_path))
       }
+    } else {
+      flog.info("Dataset %s already existing, no need to load it", tools::file_path_sans_ext(filename))
+      
     }
   }
   
-  return(loaded_data)
+  # return(loaded_data)
 }
 
 # Load all data files
-loaded_data <- load_data()
+load_data()
 
-
+# rm(global_catch_tunaatlasird_level2)
 # Log the loading of libraries
 flog.info("All datasets loaded successfully.")
 

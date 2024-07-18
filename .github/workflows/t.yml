@@ -18,18 +18,16 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 120
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
       
-      # Calculate the hash of renv.lock
       - name: Calculate renv.lock hash
         id: renv_lock
         run: echo "renv_lock_hash=$(sha256sum renv.lock | cut -d' ' -f1)" >> $GITHUB_ENV
 
-      # Calculate the hash of DOI.csv
       - name: Calculate DOI.csv hash
         id: doi_csv
         run: echo "doi_csv_hash=$(sha256sum data/DOI2.csv | cut -d' ' -f1)" >> $GITHUB_ENV
@@ -64,22 +62,12 @@ jobs:
         with:
           driver-opts: image=moby/buildkit:master,network=host
 
-      # - name: Cache Docker layers for R packages
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: /tmp/.buildx-cache/packages
-      #     key: ${{ runner.os }}-buildx-packages-${{ env.renv_lock_hash }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-buildx-packages-
+      - name: Verify Docker images
+        run: docker images
 
-      # - name: Cache Docker layers for data download
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: /tmp/.buildx-cache/data
-      #     key: ${{ runner.os }}-buildx-data-${{ env.doi_csv_hash }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-buildx-data-
-        
+      - name: Inspect Docker cache
+        run: docker buildx du --all
+
       - name: Build Docker image
         run: |
           docker buildx build \
@@ -92,7 +80,7 @@ jobs:
             --tag ghcr.io/firms-gta/testpublishingdockerimages:latest \
             --output type=docker,dest=/tmp/docker-image.tar \
             .
-            
+
       - name: Load Docker image
         if: github.ref_type == 'tag'
         run: |

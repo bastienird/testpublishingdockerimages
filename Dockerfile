@@ -34,62 +34,65 @@ RUN apt-get update && apt-get install -y \
     apt-get clean
 
 
-# Définir l'argument de construction pour le chemin du cache renv
+# ARG defines a constructor argument called RENV_PATHS_ROOT. Its value is passed from the YAML file. an initial value is setted up in case the yml does not provide one
 ARG RENV_PATHS_ROOT=/root/.cache/R/renv
 
-# Définir les variables d'environnement pour le cache renv
+# Set environment variables for renv cache
 ENV RENV_PATHS_CACHE=${RENV_PATHS_ROOT}
 
-# Diagnostiquer la valeur de la variable
+#Running the RENV_PATHS_ROOT and RENV_PATHS_CACHE to stop cache if renv.lock has changed
 RUN echo "RENV_PATHS_ROOT=${RENV_PATHS_ROOT}"
 RUN echo "RENV_PATHS_CACHE=${RENV_PATHS_CACHE}"
 
 ARG RENV_LOCK_HASH
 RUN echo "RENV_LOCK_HASH=${RENV_LOCK_HASH}"
 
-# Créer le répertoire du cache renv
+# Set environment variables for renv cache
 RUN mkdir -p ${RENV_PATHS_ROOT}
 
-# Définir le répertoire de travail
+# Set the working directory
 WORKDIR /root/testpublishingdockerimages
 
-# Copier les fichiers renv et lister les fichiers pour le diagnostic
+# Copy renv configuration and lockfile
 COPY renv.lock ./
-COPY .Rprofile ./
+# COPY .Rprofile ./ # not usefull as we run renv::activate() before starting the app but can be
 COPY renv/activate.R renv/
 COPY renv/settings.json renv/
-RUN ls -la
-RUN ls -la renv
+RUN ls -la #listing the files for diagnostics
+RUN ls -la renv #listing the files for diagnostics
 
 # Restaurer les packages renv
-RUN R -e "renv::activate()"
-RUN R -e "renv::restore()"
+RUN R -e "renv::activate()" # used to setup the environement (with the path cache)
+RUN R -e "renv::restore()" # restoring the packages
 
-# Créer le répertoire data et lister les fichiers pour le diagnostic
-RUN mkdir -p data
-RUN ls -la ./data
+# Create data repository
+RUN mkdir -p data 
+RUN ls -la ./data #listing the files for diagnostics
 
+#Running the DOI_CSV_HASH to stop cache if DOI_CSV_HASH has changed (if DOI.csv has changed)
 RUN echo "DOI_CSV_HASH=${DOI_CSV_HASH}"
 
-# Copier les données et le script de traitement
-COPY data/DOI2.csv ./data/DOI2.csv
-COPY update_data.R ./update_data.R
+
+COPY data/DOI2.csv ./data/DOI2.csv # copy the csv containing the data to donwload
+COPY update_data.R ./update_data.R # copy the script downloading the data from the csv
 
 # Ajouter une étape pour lister les fichiers après copie
-RUN ls -la ./data
-RUN ls -la
+RUN ls -la ./data #listing the files for diagnostics
+RUN ls -la #listing the files for diagnostics
 
 # Exécuter le script de traitement des données
-RUN Rscript update_data.R
+RUN Rscript update_data.R #downloading the data (cached if data/DOI.csv did not change)
 
-# Copier le reste du code de l'application
+# Copy the rest of the application code
 COPY . .
 
-# Exposer le port 3838 pour l'application Shiny
+# Expose port 3838 for the Shiny app
 EXPOSE 3838
 
-# Créer des répertoires pour la configuration
+# Create directories for configuration
 RUN mkdir -p /etc/testpublishingdockerimages/
 
-# Définir le point d'entrée pour exécuter l'application Shiny
+RUN Rscript global.R
+
+# Define the entry point to run the Shiny app
 CMD ["R", "-e", "shiny::runApp('/root/testpublishingdockerimages', port=3838, host='0.0.0.0')"]
