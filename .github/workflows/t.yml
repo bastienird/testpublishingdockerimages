@@ -24,6 +24,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Calculate renv.lock hash
+        id: renv_lock
+        run: echo "renv_lock_hash=$(sha256sum renv.lock | cut -d' ' -f1)" >> $GITHUB_ENV
+
+      - name: Calculate DOI.csv hash
+        id: doi_csv
+        run: echo "doi_csv_hash=$(sha256sum data/DOI2.csv | cut -d' ' -f1)" >> $GITHUB_ENV
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
@@ -54,6 +62,12 @@ jobs:
         with:
           driver-opts: image=moby/buildkit:master,network=host
 
+      - name: Verify Docker images
+        run: docker images
+
+      - name: Inspect Docker cache
+        run: docker buildx du
+
       - name: Build Docker image
         run: |
           docker buildx build \
@@ -66,7 +80,7 @@ jobs:
             --tag ghcr.io/firms-gta/testpublishingdockerimages:latest \
             --output type=docker,dest=/tmp/docker-image.tar \
             .
-            
+
       - name: Load Docker image
         if: github.ref_type == 'tag'
         run: |
