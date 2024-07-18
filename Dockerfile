@@ -45,8 +45,8 @@ RUN ls -la ./data
 
 #those packages are essential to download the data in update_data.R, they are ran before renv because the renv.lock would change more than the DOI2.csv
 RUN R -e "install.packages('remotes', repos='https://cran.r-project.org/')" 
-RUN R -e "remotes::install_version('zen4R', version = '0.10', repos = 'https://cran.r-project.org/')"
-RUN R -e "remotes::install_version('readr', version = '2.1.5',  repos = 'https://cran.r-project.org/')"
+RUN R -e "remotes::install_version('zen4R', version = '0.10', upgrade = 'never', repos = 'https://cran.r-project.org/')"
+RUN R -e "remotes::install_version('readr', version = '2.1.5', upgrade = 'never',  repos = 'https://cran.r-project.org/')"
 
 # Echo the DOI_CSV_HASH for debugging and to to stop cache if DOI2.csv has changed
 ARG DOI_CSV_HASH
