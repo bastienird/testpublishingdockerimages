@@ -4,6 +4,8 @@ require(readr)
 
 DOI <- read_csv("data/DOI2.csv")
 
+options(timeout = 600)
+
 extract_zenodo_metadata <- function(doi, filename, data_dir = "data") {
   
   dir <- getwd()
