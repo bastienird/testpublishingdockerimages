@@ -75,6 +75,7 @@ jobs:
         run: |
           docker buildx build \
             --progress=plain \
+            --no-cache \
             --cache-from type=registry,ref=$CACHE_IMAGE:latest \
             --cache-to type=registry,ref=$CACHE_IMAGE:latest,mode=max \
             --build-arg RENV_PATHS_ROOT=${{ env.RENV_PATHS_ROOT }} \
