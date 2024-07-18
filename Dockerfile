@@ -85,6 +85,8 @@ RUN echo "RENV_LOCK_HASH=${RENV_LOCK_HASH}"
 # Create the renv cache directory
 RUN mkdir -p ${RENV_PATHS_ROOT}
 
+RUN R -e "install.packages('renv', repos='https://cran.r-project.org/')" 
+
 # Copy renv configuration and lockfile
 COPY renv.lock ./
 COPY renv/activate.R renv/
